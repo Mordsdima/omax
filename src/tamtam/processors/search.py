@@ -1,6 +1,7 @@
 import json, pydantic
 from classes.baseprocessor import BaseProcessor
 from tamtam.models import SearchUsersPayloadModel
+from tamtam.models import SearchChatsPayloadModel
 
 class SearchProcessors(BaseProcessor):
     async def contact_info(self, payload, seq, writer):
@@ -57,6 +58,62 @@ class SearchProcessors(BaseProcessor):
         # Создаем пакет
         response = self.proto.pack_packet(
             cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CONTACT_INFO, payload=payload
+        )
+
+        # Отправляем
+        await self._send(writer, response)
+
+    async def chat_info(self, payload, seq, writer, senderId):
+        """Поиск чатов по ID"""
+        # Валидируем данные пакета
+        try:
+            SearchChatsPayloadModel.model_validate(payload)
+        except pydantic.ValidationError as error:
+            self.logger.error(f"Возникли ошибки при валидации пакета: {error}")
+            await self._send_error(seq, self.opcodes.CHAT_INFO, self.error_types.INVALID_PAYLOAD, writer)
+            return
+
+        # Итоговый список чатов
+        chats = []
+
+        # ID чатов, которые нам предстоит найти
+        chatIds = payload.get("chatIds")
+
+        # Ищем чаты в бд
+        async with self.db_pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                for chatId in chatIds:
+                    await cursor.execute("SELECT * FROM chats WHERE id = %s", (chatId,))
+                    chat = await cursor.fetchone()
+
+                    if chat:
+                        # Проверяем, является ли пользователь участником чата
+                        participants = await self.tools.get_chat_participants(chatId, self.db_pool)
+                        if int(senderId) not in participants:
+                            continue
+
+                        # Получаем последнее сообщение из чата
+                        message, messageTime = await self.tools.get_last_message(
+                            chatId, self.db_pool, protocol_type=self.type
+                        )
+
+                        # Добавляем чат в список
+                        chats.append(
+                            self.tools.generate_chat(
+                                chatId, chat.get("owner"),
+                                chat.get("type"), participants,
+                                message, messageTime
+                            )
+                        )
+
+        # Создаем данные пакета
+        payload = {
+            "chats": chats
+        }
+
+        # Собираем пакет
+        response = self.proto.pack_packet(
+            cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CHAT_INFO, payload=payload
         )
 
         # Отправляем

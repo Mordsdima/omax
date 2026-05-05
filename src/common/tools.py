@@ -419,6 +419,7 @@ class Tools:
                     "attaches": json.loads(row.get("attaches")),
                     "elements": json.loads(row.get("elements")),
                     "reactionInfo": {},
+                    "link": {}
                 }
 
                 # Возвращаем

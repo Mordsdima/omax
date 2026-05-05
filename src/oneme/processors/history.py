@@ -64,11 +64,13 @@ class HistoryProcessors(BaseProcessor):
                                 "time": int(row.get("time")),
                                 "type": row.get("type"),
                                 "sender": row.get("sender"),
+                                "cid": int(row.get("cid")),
                                 "text": row.get("text"),
                                 "attaches": json.loads(row.get("attaches")),
                                 "elements": json.loads(row.get("elements")),
                                 "reactionInfo": {},
-                                "options": 1,
+                                "link": {},
+                                #"options": 1,
                             })
 
                     if forward > 0:
@@ -81,14 +83,17 @@ class HistoryProcessors(BaseProcessor):
 
                         for row in result:
                             messages.append({
-                                "id": row.get("id"),
+                                "id": row.get("id") if self.type == 'mobile' else str(row.get('id')),
                                 "time": int(row.get("time")),
                                 "type": row.get("type"),
                                 "sender": row.get("sender"),
+                                "cid": int(row.get("cid")),
                                 "text": row.get("text"),
                                 "attaches": json.loads(row.get("attaches")),
                                 "elements": json.loads(row.get("elements")),
-                                "reactionInfo": {}
+                                "reactionInfo": {},
+                                "link": {}
+                                #"options": 1,
                             })
 
         # Сортируем сообщения по времени

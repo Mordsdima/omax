@@ -24,7 +24,7 @@ class TamTamMobile:
         self.auth_required = Tools().auth_required
 
         # rate limiter
-        self.auth_rate_limiter = RateLimiter(max_attempts=5, window_seconds=60)
+        self.auth_rate_limiter = RateLimiter(max_attempts=15, window_seconds=60)
 
         self.read_timeout = 300 # Таймаут чтения из сокета (секунды)
         self.max_read_size = 65536 # Максимальный размер данных из сокета
@@ -105,9 +105,78 @@ class TamTamMobile:
 
                             if userPhone:
                                 await self._finish_auth(writer, address, userPhone, userId)
+                    case self.opcodes.LOGOUT:
+                        await self.processors.logout(
+                            seq, writer, hashedToken=hashedToken
+                        )
+                        break
                     case self.opcodes.CONTACT_INFO:
                         await self.auth_required(
                             userPhone, self.processors.contact_info, payload, seq, writer
+                        )
+                    case self.opcodes.CHAT_HISTORY:
+                        await self.auth_required(
+                            userPhone, self.processors.chat_history, payload, seq, writer, userId
+                        )
+                    case self.opcodes.ASSETS_UPDATE:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_update, payload, seq, writer
+                        )
+                    case self.opcodes.VIDEO_CHAT_HISTORY:
+                        await self.auth_required(
+                            userPhone, self.processors.video_chat_history, payload, seq, writer
+                        )
+                    case self.opcodes.MSG_SEND:
+                        await self.auth_required(
+                            userPhone, self.processors.msg_send, payload, seq, writer, userId, self.db_pool
+                        )
+                    case self.opcodes.MSG_TYPING:
+                        await self.auth_required(
+                            userPhone, self.processors.msg_typing, payload, seq, writer, userId
+                        )
+                    case self.opcodes.FOLDERS_GET:
+                        await self.auth_required(
+                            userPhone, self.processors.folders_get, payload, seq, writer, userPhone
+                        )
+                    case self.opcodes.FOLDERS_UPDATE:
+                        await self.auth_required(
+                            userPhone, self.processors.folders_update, payload, seq, writer, userPhone
+                        )
+                    case self.opcodes.SESSIONS_INFO:
+                        await self.auth_required(
+                            userPhone, self.processors.sessions_info, payload, seq, writer, userPhone, hashedToken
+                        )
+                    case self.opcodes.CHAT_INFO:
+                        await self.auth_required(
+                            userPhone, self.processors.chat_info, payload, seq, writer, userId
+                        )
+                    case self.opcodes.OK_TOKEN:
+                        await self.auth_required(
+                            userPhone, self.processors.ok_token, payload, seq, writer
+                        )
+                    case self.opcodes.CONTACT_LIST:
+                        await self.auth_required(
+                            userPhone, self.processors.contact_list, payload, seq, writer, userId
+                        )
+                    case self.opcodes.PROFILE:
+                        await self.processors.profile(
+                            payload, seq, writer, userId=userId
+                        )
+                    case self.opcodes.CHAT_SUBSCRIBE:
+                        await self.auth_required(
+                            userPhone, self.processors.chat_subscribe, payload, seq, writer
+                        )
+                    case self.opcodes.CONFIG:
+                        await self.auth_required(
+                            userPhone, self.processors.update_config, payload, seq, writer, userPhone, hashedToken
+                        )
+                    case self.opcodes.CONTACT_UPDATE:
+                        await self.auth_required(
+                            userPhone, self.processors.contact_update, payload, seq, writer, userId
+                        )
+                    case self.opcodes.CONTACT_PRESENCE:
+                        await self.auth_required(
+                            userPhone, self.processors.contact_presence, payload, seq, writer
                         )
                     case _:
                         self.logger.warning(f"Неизвестный опкод {opcode}")
@@ -115,8 +184,12 @@ class TamTamMobile:
             self.logger.error(f"Произошла ошибка при работе с клиентом {address[0]}:{address[1]}: {e}")
             traceback.print_exc()
 
+        # Удаляем клиента из словаря при отключении
+        if userId:
+            await self._end_session(userId, address[0], address[1])
+
         writer.close()
-        self.logger.info(f"Прекратил работать работать с клиентом {address[0]}:{address[1]}")
+        self.logger.info(f"Прекратил работать с клиентом {address[0]}:{address[1]}")
 
     async def _finish_auth(self, writer, addr, phone, id):
         """Завершение открытия сессии"""

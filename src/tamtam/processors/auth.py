@@ -174,6 +174,9 @@ class AuthProcessors(BaseProcessor):
         if not deviceType:
             deviceType = payload.get("deviceType")
 
+        if not deviceName:
+            deviceName = "Unknown device"
+
         # Хешируем токен
         hashed_token = hashlib.sha256(token.encode()).hexdigest()
 
@@ -231,7 +234,9 @@ class AuthProcessors(BaseProcessor):
 
         # Собираем данные пакета
         payload = {
-            "userToken": "0",  # Пока как заглушка
+            # Я хз че сюда вставлять)
+            # ребята из одноклассников, может быть вы подскажете?
+            "userToken": str(account.get("id")),
             "profile": self.tools.generate_profile_tt(
                 id=account.get("id"),
                 phone=int(account.get("phone")),
@@ -338,16 +343,25 @@ class AuthProcessors(BaseProcessor):
             include_favourites=False
         )
 
+        # Генерируем список контактов
+        contacts = await self.tools.collect_user_contacts(
+            user.get("id"), self.db_pool, self.config.avatar_base_url
+        )
+
+        # Собираем статусы контактов
+        contact_ids = [c.get("id") for c in contacts if c.get("id") is not None]
+        presence = await self.tools.collect_presence(contact_ids, self.clients, self.db_pool)
+
         # Формируем данные пакета
         payload = {
             "profile": profile,
             "chats": chats,
             "chatMarker": 0,
             "messages": {},
-            "contacts": [],
-            "presence": {},
+            "contacts": contacts,
+            "presence": presence,
             "config": {
-                "hash": "e5903aa8-0000000000000000-80000106-0000000000000001-00000001-0000000000000000-00000000-2-00000001-0000019c9559d057",
+                "hash": "0",
                 "server": self.server_config,
                 "user": updated_user_config,
                 "chatFolders": {
@@ -371,6 +385,10 @@ class AuthProcessors(BaseProcessor):
             "time": int(time.time() * 1000)
         }
 
+        # print(
+        #     json.dumps(payload, indent=4)
+        # )
+
         # Собираем пакет
         packet = self.proto.pack_packet(
             cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.LOGIN, payload=payload
@@ -379,3 +397,20 @@ class AuthProcessors(BaseProcessor):
         # Отправляем
         await self._send(writer, packet)
         return int(user.get("phone")), int(user.get("id")), hashed_token
+
+    async def logout(self, seq, writer, hashedToken):
+        """Обработчик завершения сессии"""
+        # Удаляем токен из бд
+        async with self.db_pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(
+                    "DELETE FROM tokens WHERE token_hash = %s", (hashedToken,)
+                )
+
+        # Создаем пакет
+        response = self.proto.pack_packet(
+            cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.LOGOUT, payload=None
+        )
+
+        # Отправляем
+        await self._send(writer, response)

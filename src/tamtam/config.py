@@ -9,319 +9,12 @@ class TTConfig:
           "googNoiseSuppression": "true",
           "googHighpassFilter": "false",
           "googTypingNoiseDetection": "false",
-          "googAudioNetworkAdaptorConfig": "ChyyARkNCtcjPBUK1yM8GKjDASCw6gEomHUwoJwBCgfKAQQIABAACgvCAQgIqMMBELiRAgosqgEpChEIuBcVzcxMPhjogQIlCtejOxIRCOgHFc3MTD4YsOoBJQrXozsYyAEKC7oBCAiw6gEQoJwB"
+          "googAudioNetworkAdaptorConfig": ""
         },
         "a-lte": 24,
         "a-wifi": 34,
         "account-removal-enabled": False,
-        "animated-emojis": {
-          "❤️": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/03.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/04.json"
-            }
-          },
-          "👍": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-29lottie/e/16.json"
-            },
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/01_m.json"
-            }
-          },
-          "👎": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/17.json"
-            },
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/02.json"
-            }
-          },
-          "🙏": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/04.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-29lottie/e/30_ng.json"
-            }
-          },
-          "😘": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/05.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/03.json"
-            }
-          },
-          "🔥": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/06.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/10.json"
-            }
-          },
-          "😂": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/07.json"
-            }
-          },
-          "👏": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/56.json"
-            }
-          },
-          "😮": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/09.json"
-            }
-          },
-          "💋": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/13_v02.json"
-            },
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2023-01-18lottie/r/kissing2.json"
-            }
-          },
-          "🥂": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/20.json"
-            },
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/20.json"
-            }
-          },
-          "😳": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/09.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/02.json"
-            }
-          },
-          "😔": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/r/11.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/05.json"
-            }
-          },
-          "😍": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/07.json"
-            }
-          },
-          "😯": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/08.json"
-            }
-          },
-          "😉": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/09.json"
-            }
-          },
-          "🌺": {
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2023-03-06lottie/flower.json"
-            },
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/11.json"
-            }
-          },
-          "🎂": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/14.json"
-            }
-          },
-          "💩": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/15.json"
-            },
-            "reactionAction": {
-              "url": "https://st.okcdn.ru/static/messages/2023-01-18lottie/r/shit_1.json"
-            }
-          },
-          "🐰": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/19.json"
-            }
-          },
-          "🎅": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/21.json"
-            }
-          },
-          "🎄": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/23.json"
-            }
-          },
-          "🎆": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/22.json"
-            }
-          },
-          "❄️": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/25.json"
-            }
-          },
-          "🎉": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-28lottie/e/12.json"
-            }
-          },
-          "🥗": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2022-12-29lottie/e/28.json"
-            }
-          },
-          "🧡": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/31.json"
-            }
-          },
-          "💔": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/32.json"
-            }
-          },
-          "🎁": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/34.json"
-            }
-          },
-          "🌹": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/35.json"
-            }
-          },
-          "🌸": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/36.json"
-            }
-          },
-          "🍒": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/37.json"
-            }
-          },
-          "🥕": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/39.json"
-            }
-          },
-          "🍑": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/40.json"
-            }
-          },
-          "🍋": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/41.json"
-            }
-          },
-          "🍃": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/42.json"
-            }
-          },
-          "😺": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/43.json"
-            }
-          },
-          "🐶": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/44.json"
-            }
-          },
-          "🐽": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-07-20animojie/45.json"
-            }
-          },
-          "💐": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/46.json"
-            }
-          },
-          "🎈": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/47.json"
-            }
-          },
-          "🍾": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/48.json"
-            }
-          },
-          "⚡": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/49.json"
-            }
-          },
-          "⭐": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/50.json"
-            }
-          },
-          "✨": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/51.json"
-            }
-          },
-          "💃": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/52.json"
-            }
-          },
-          "☀️": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/53.json"
-            }
-          },
-          "👋": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/54.json"
-            }
-          },
-          "☕": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/57.json"
-            }
-          },
-          "🙂": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/58.json"
-            }
-          },
-          "🤩": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-15animoji/59.json"
-            }
-          },
-          "😇": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/60.json"
-            }
-          },
-          "😎": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/61.json"
-            }
-          },
-          "🍎": {
-            "emoji": {
-              "url": "https://st.okcdn.ru/static/messages/2023-08-14animoji/62.json"
-            }
-          }
-        },
+        "animated-emojis": {},
         "animated-emojis-limits": {
           "low": 5,
           "average": 10,
@@ -383,10 +76,10 @@ class TTConfig:
         "image-quality": 0.800000011920929,
         "image-size": 40000000,
         "image-width": 1680,
-        "invite-header": "Приглашение в ТамТам",
-        "invite-link": "https://tt.me/starwear",
-        "invite-long": "Я общаюсь в ТамТам, присоединяйся https://tt.me/starwear",
-        "invite-short": "Привет! Ставь ТамТам! Жду ответа! https://tt.me/starwear",
+        "invite-header": "",
+        "invite-link": "",
+        "invite-long": "",
+        "invite-short": "",
         "keep-connection": 2,
         "l10n": False,
         "live-location-enabled": True,
@@ -453,25 +146,12 @@ class TTConfig:
         "profiling-enabled": False,
         "progress-diff-for-notify": 1,
         "promo-contact-id": 0,
-        "promo-recent-contacts": True,
-        "promo_contact_label": "Белый Маг",
-        "proxy": "msgproxy.okcdn.ru",
-        "proxy-domains": [
-          "okcdn.ru",
-          "mycdn.me",
-          "ok.ru",
-          "odnoklassniki.ru",
-          "odkl.ru",
-          "vk.com",
-          "userapi.com",
-          "vkuser.net",
-          "vkusercdn.ru"
-        ],
-        "proxy-exclude": [
-          "r.mradx.net",
-          "ad.mail.ru"
-        ],
-        "proxy-rotation": True,
+        "promo-recent-contacts": False,
+        "promo_contact_label": "",
+        "proxy": "",
+        "proxy-domains": [],
+        "proxy-exclude": [],
+        "proxy-rotation": False,
         "push-alert-timeout": 604800,
         "push-tracking-enabled": True,
         "quick-forward-cases": [],
@@ -519,24 +199,24 @@ class TTConfig:
           "TOP"
         ],
         "stickers-suggestion-keywords-inline": False,
-        "support-account": "tt.me/support",
+        "support-account": "",
         "support-button-enable": False,
         "t-ice-reconnect": 15,
         "t-incoming-call": 40,
         "t-start-connect": 20,
-        "tam-emoji-font-url": "https://st.okcdn.ru/static/messages/2022-08-25noto/TamNotoColorEmojiCompat.ttf",
+        "tam-emoji-font-url": "",
         "tcp-candidates": False,
-        "tracer-crash-report-enabled": True,
-        "tracer-crash-report-host": "https://api-hprof.odkl.ru",
-        "tracer-crash-send-asap-enabled": True,
-        "tracer-crash-send-logs-enabled": True,
-        "tracer-crash-send-threads-dump-enabled": True,
+        "tracer-crash-report-enabled": False,
+        "tracer-crash-report-host": "",
+        "tracer-crash-send-asap-enabled": False,
+        "tracer-crash-send-logs-enabled": False,
+        "tracer-crash-send-threads-dump-enabled": False,
         "tracer-disk-overflow-report-threshold": 3000000000,
         "tracer-disk-usage-probability": 500,
-        "tracer-enabled": True,
-        "tracer-host": "https://api-hprof.odkl.ru",
+        "tracer-enabled": False,
+        "tracer-host": "",
         "tracer-hprof-probability": -1,
-        "tracer-sampled-conditions": "tag=app_start_ui_freeze_2k;probability=100000;startEvent=app_first_activity_created;interestingEvent=app_freeze;interestingDuration=2000",
+        "tracer-sampled-conditions": "",
         "tracer-sampled-duration": 20000,
         "tracer-systrace-duration": 20000,
         "tracer-systrace-interesting-duration": 10000,
