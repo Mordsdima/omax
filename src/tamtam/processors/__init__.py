@@ -3,7 +3,6 @@ from .auth import AuthProcessors
 from .search import SearchProcessors
 from .history import HistoryProcessors
 from .assets import AssetsProcessors
-from .calls import CallsProcessors
 from .chats import ChatsProcessors
 from .contacts import ContactsProcessors
 from .messages import MessagesProcessors
@@ -14,7 +13,6 @@ class Processors(MainProcessors,
                  SearchProcessors,
                  HistoryProcessors,
                  AssetsProcessors,
-                 CallsProcessors,
                  ChatsProcessors,
                  ContactsProcessors,
                  MessagesProcessors,

@@ -136,10 +136,6 @@ class TamTamWS:
                         await self.auth_required(
                             userPhone, self.processors.chat_info, payload, seq, websocket, userId
                         )
-                    case self.opcodes.OK_TOKEN:
-                        await self.auth_required(
-                            userPhone, self.processors.ok_token, payload, seq, websocket
-                        )
                     case self.opcodes.CONTACT_LIST:
                         await self.auth_required(
                             userPhone, self.processors.contact_list, payload, seq, websocket, userId

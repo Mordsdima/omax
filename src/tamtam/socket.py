@@ -150,10 +150,6 @@ class TamTamMobile:
                         await self.auth_required(
                             userPhone, self.processors.chat_info, payload, seq, writer, userId
                         )
-                    case self.opcodes.OK_TOKEN:
-                        await self.auth_required(
-                            userPhone, self.processors.ok_token, payload, seq, writer
-                        )
                     case self.opcodes.CONTACT_LIST:
                         await self.auth_required(
                             userPhone, self.processors.contact_list, payload, seq, writer, userId
