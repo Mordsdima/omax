@@ -14,7 +14,7 @@ from common.tools import Tools
 
 
 class TelegramBot:
-    def __init__(self, token, enabled, db_pool, whitelist_ids=None):
+    def __init__(self, token, enabled, db_pool, whitelist_ids=None, whitelist_enabled=False):
         self.bot = Bot(token=token)
         self.dp = Dispatcher()
         self.router = Router()
@@ -23,6 +23,7 @@ class TelegramBot:
         self.enabled = enabled
         self.db_pool = db_pool
         self.whitelist_ids = whitelist_ids if whitelist_ids is not None else []
+        self.whitelist_enabled = whitelist_enabled
         self.logger = logging.getLogger(__name__)
 
         self.msg_types = Static().BotMessageTypes()
@@ -59,12 +60,13 @@ class TelegramBot:
     async def handle_register(self, message: Message):
         tg_id = str(message.from_user.id)
 
-        # Проверка ID на наличие в белом списке
-        if self.whitelist_ids and tg_id not in self.whitelist_ids:
-            await message.answer(
-                self.get_bot_message(self.msg_types.ID_NOT_WHITELISTED)
-            )
-            return
+        # Проверка ID на наличие в белом списке (если он включен, конечно)
+        if self.whitelist_enabled:
+            if self.whitelist_ids and tg_id not in self.whitelist_ids:
+                await message.answer(
+                    self.get_bot_message(self.msg_types.ID_NOT_WHITELISTED)
+                )
+                return
 
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cursor:
