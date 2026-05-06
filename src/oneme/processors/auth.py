@@ -631,8 +631,9 @@ class AuthProcessors(BaseProcessor):
             "token": token,
             "videoChatHistory": False,
             "time": int(time.time() * 1000),
-        }        # Собираем пакет
-
+        }        
+        
+        # Собираем пакет
         packet = self.proto.pack_packet(
             cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.LOGIN, payload=payload
         )

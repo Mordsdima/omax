@@ -120,7 +120,7 @@ class OnemeWS:
                                 userPhone,
                                 userId,
                                 hashedToken,
-                            ) = await self.processors.login(payload, seq, websocket, deviceType, appVersion)
+                            ) = await self.processors.login(payload, seq, websocket, appVersion)
 
                             if userPhone:
                                 await self._finish_auth(
