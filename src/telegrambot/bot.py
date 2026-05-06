@@ -131,7 +131,7 @@ class TelegramBot:
     async def start(self):
         if self.enabled:
             try:
-                await self.dp.start_polling(self.bot)
+                await self.dp.start_polling(self.bot, handle_signals=False)
             except Exception as e:
                 self.logger.error(f"Ошибка запуска Telegram бота: {e}")
         else:

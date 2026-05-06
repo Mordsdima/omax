@@ -239,5 +239,9 @@ class TamTamMobile:
 
         self.logger.info(f"Сокет запущен на порту {self.port}")
 
-        async with self.server:
-            await self.server.serve_forever()
+        try:
+            async with self.server:
+                await self.server.serve_forever()
+        except asyncio.CancelledError:
+            self.server.close()
+            await self.server.wait_closed()

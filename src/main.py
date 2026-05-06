@@ -177,13 +177,11 @@ async def main():
 
     api["telegram_bot"] = controllers["telegrambot"]
 
-    coros = [controller.launch(api) for controller in controllers.values()]
-    running_tasks = [asyncio.create_task(coro) for coro in coros]
-
-    # Обработчик sigterm
     loop = asyncio.get_running_loop()
+    running_tasks = []
 
     def _shutdown(sig):
+        logging.info(f"Получен сигнал {sig}, завершаем все задачи...")
         for task in running_tasks:
             task.cancel()
 
@@ -191,10 +189,13 @@ async def main():
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, _shutdown, sig)
 
+    coros = [controller.launch(api) for controller in controllers.values()]
+    running_tasks.extend(asyncio.create_task(coro) for coro in coros)
+
     # Запускаем контроллеры
     try:
         await asyncio.gather(*running_tasks)
-    except asyncio.CancelledError:
+    except (asyncio.CancelledError, Exception):
         logging.info("Все задачи завершены, выходим")
 
 
