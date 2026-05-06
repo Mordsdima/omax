@@ -83,6 +83,10 @@ class TelegramBot:
                 updatetime = str(int(time.time() * 1000))
                 lastseen = str(int(time.time()))
 
+                firstname = message.from_user.first_name[:59]
+                lastname = (message.from_user.last_name or "")[:59]
+                username = (message.from_user.username or f"user{int(time.time() * 1000)}")[:60]
+
                 try:
                     # Создаем юзера
                     await cursor.execute(
@@ -90,9 +94,9 @@ class TelegramBot:
                         (
                             new_phone,  # phone
                             tg_id,  # telegram_id
-                            message.from_user.first_name[:59],  # firstname
-                            (message.from_user.last_name or "")[:59],  # lastname
-                            (message.from_user.username or None)[:60],  # username
+                            firstname,  # firstname
+                            lastname,  # lastname
+                            username,  # username
                             json.dumps([]),  # profileoptions
                             json.dumps(["TT", "ONEME"]),  # options
                             0,  # accountstatus
