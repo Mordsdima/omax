@@ -320,7 +320,8 @@ class OnemeWS:
                     "writer": websocket,
                     "ip": addr[0],
                     "port": addr[1],
-                    "protocol": "oneme"
+                    "protocol": "oneme",
+                    "type": "web"
                 }
             )
         else:
@@ -334,7 +335,8 @@ class OnemeWS:
                         "writer": websocket,
                         "ip": addr[0],
                         "port": addr[1],
-                        "protocol": "oneme"
+                        "protocol": "oneme",
+                        "type": "web"
                     }
                 ]
             }

@@ -10,13 +10,18 @@ from common.opcodes import Opcodes
 class OnemeController(ControllerBase):
     def __init__(self):
         self.config = ServerConfig()
-        self.proto = MobileProto()
+        self.proto_tcp = MobileProto()
+        self.proto_web = WebProto()
         self.opcodes = Opcodes()
 
     async def event(self, target, client, eventData):
         # Извлекаем тип события и врайтер
         eventType = eventData.get("eventType")
         writer = client.get("writer")
+        is_web = client.get("type") == "web"
+
+        # Выбираем протокол в зависимости от типа подключения
+        proto = self.proto_web if is_web else self.proto_tcp
 
         # Не отправляем событие самому себе
         if writer == eventData.get("writer"):
@@ -41,7 +46,7 @@ class OnemeController(ControllerBase):
             }
 
             # Создаем пакет
-            packet = self.proto.pack_packet(
+            packet = proto.pack_packet(
                 cmd=0, seq=1, opcode=self.opcodes.NOTIF_MESSAGE, payload=payload
             )
         elif eventType == "typing":
@@ -58,7 +63,7 @@ class OnemeController(ControllerBase):
             }
 
             # Создаем пакет
-            packet = self.proto.pack_packet(
+            packet = proto.pack_packet(
                 cmd=0, seq=1, opcode=self.opcodes.NOTIF_TYPING, payload=payload
             )
         elif eventType == "profile_updated":
@@ -71,7 +76,7 @@ class OnemeController(ControllerBase):
             }
 
             # Создаем пакет
-            packet = self.proto.pack_packet(
+            packet = proto.pack_packet(
                 cmd=0, seq=1, opcode=self.opcodes.NOTIF_PROFILE, payload=payload
             )
         elif eventType == "presence":
@@ -85,13 +90,16 @@ class OnemeController(ControllerBase):
                 "time": event_time
             }
 
-            packet = self.proto.pack_packet(
+            packet = proto.pack_packet(
                 cmd=0, seq=1, opcode=self.opcodes.NOTIF_PRESENCE, payload=payload
             )
 
         # Отправляем пакет
-        writer.write(packet)
-        await writer.drain()
+        if is_web:
+            await writer.send(packet)
+        else:
+            writer.write(packet)
+            await writer.drain()
 
     def launch(self, api):
         async def _start_all():

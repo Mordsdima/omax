@@ -187,7 +187,8 @@ class TamTamWS:
                     "writer": websocket,
                     "ip": addr[0],
                     "port": addr[1],
-                    "protocol": "tamtam"
+                    "protocol": "tamtam",
+                    "type": "web"
                 }
             )
         else:
@@ -199,7 +200,8 @@ class TamTamWS:
                         "writer": websocket,
                         "ip": addr[0],
                         "port": addr[1],
-                        "protocol": "tamtam"
+                        "protocol": "tamtam",
+                        "type": "web"
                     }
                 ]
             }

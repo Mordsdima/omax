@@ -199,7 +199,8 @@ class TamTamMobile:
                     "writer": writer,
                     "ip": addr[0],
                     "port": addr[1],
-                    "protocol": "tamtam"
+                    "protocol": "tamtam",
+                    "type": "tcp"
                 }
             )
         else:
@@ -211,7 +212,8 @@ class TamTamMobile:
                         "writer": writer,
                         "ip": addr[0],
                         "port": addr[1],
-                        "protocol": "tamtam"
+                        "protocol": "tamtam",
+                        "type": "tcp"
                     }
                 ]
             }
