@@ -92,7 +92,7 @@ class TelegramBot:
                             tg_id,  # telegram_id
                             message.from_user.first_name[:59],  # firstname
                             (message.from_user.last_name or "")[:59],  # lastname
-                            (message.from_user.username or "")[:60],  # username
+                            (message.from_user.username or None)[:60],  # username
                             json.dumps([]),  # profileoptions
                             json.dumps(["TT", "ONEME"]),  # options
                             0,  # accountstatus
