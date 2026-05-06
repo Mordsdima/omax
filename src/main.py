@@ -197,7 +197,14 @@ async def main():
         await asyncio.gather(*running_tasks)
     except (asyncio.CancelledError, Exception):
         logging.info("Все задачи завершены, выходим")
+    finally:
+        if hasattr(db, 'close'):
+            db.close()
+            await db.wait_closed()
+        elif hasattr(db, 'connection') and hasattr(db.connection, 'close'):
+            await db.connection.close()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
