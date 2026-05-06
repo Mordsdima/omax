@@ -1,6 +1,7 @@
 import logging
 import traceback
 import websockets
+import asyncio
 from common.proto_web import WebProto
 from tamtam.processors import Processors
 from common.rate_limiter import RateLimiter
@@ -229,4 +230,9 @@ class TamTamWS:
 
         self.logger.info(f"TT WebSocket запущен на порту {self.port}")
 
-        await self.server.wait_closed()
+        try:
+            await self.server.wait_closed()
+        except asyncio.CancelledError:
+            self.server.close()
+            await self.server.wait_closed()
+            raise

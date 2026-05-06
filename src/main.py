@@ -1,7 +1,9 @@
 # Импортирование библиотек
 import asyncio
 import logging
+import signal
 import ssl
+import sys
 
 from common.config import ServerConfig
 from common.push import PushService
@@ -175,10 +177,25 @@ async def main():
 
     api["telegram_bot"] = controllers["telegrambot"]
 
-    tasks = [controller.launch(api) for controller in controllers.values()]
+    coros = [controller.launch(api) for controller in controllers.values()]
+    running_tasks = [asyncio.create_task(coro) for coro in coros]
+
+    # Обработчик sigterm
+    loop = asyncio.get_running_loop()
+
+    def _shutdown(sig):
+        for task in running_tasks:
+            task.cancel()
+
+    if sys.platform != "win32":
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, _shutdown, sig)
 
     # Запускаем контроллеры
-    await asyncio.gather(*tasks)
+    try:
+        await asyncio.gather(*running_tasks)
+    except asyncio.CancelledError:
+        logging.info("Все задачи завершены, выходим")
 
 
 if __name__ == "__main__":

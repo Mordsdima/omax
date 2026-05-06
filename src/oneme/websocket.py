@@ -2,6 +2,7 @@ import logging
 import time
 import traceback
 import websockets
+import asyncio
 from common.proto_web import WebProto
 from oneme.processors import Processors
 from common.rate_limiter import RateLimiter
@@ -410,4 +411,9 @@ class OnemeWS:
 
         self.logger.info(f"WebSocket запущен на порту {self.port}")
 
-        await self.server.wait_closed()
+        try:
+            await self.server.wait_closed()
+        except asyncio.CancelledError:
+            self.server.close()
+            await self.server.wait_closed()
+            raise
