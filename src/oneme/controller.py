@@ -116,10 +116,11 @@ class OnemeController(ControllerBase):
                 OnemeWS(
                     host=self.config.host,
                     port=self.config.oneme_ws_port,
-                    clients=api['clients'],
                     ssl_context=api['ssl'],
                     db_pool=api['db'],
-                    send_event=api['event']
+                    clients=api['clients'],
+                    send_event=api['event'],
+                    telegram_bot=api.get('telegram_bot'),
                 ).start()
             )
 

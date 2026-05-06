@@ -10,7 +10,9 @@ from common.opcodes import Opcodes
 from common.tools import Tools
 
 class OnemeWS:
-    def __init__(self, host, port, clients, ssl_context, db_pool, send_event):
+    def __init__(
+        self, host, port, ssl_context, db_pool, clients, send_event, telegram_bot
+    ):
         self.host = host
         self.port = port
         self.ssl_context = ssl_context
@@ -22,7 +24,12 @@ class OnemeWS:
         self.opcodes = Opcodes()
 
         self.proto = WebProto()
-        self.processors = Processors(db_pool=db_pool, clients=clients, send_event=send_event, type="web")
+        self.processors = Processors(
+            db_pool=db_pool,
+            clients=clients,
+            send_event=send_event,
+            telegram_bot=telegram_bot,
+        )        
         self.auth_required = Tools().auth_required
 
         # rate limiter
