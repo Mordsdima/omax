@@ -29,6 +29,7 @@ class OnemeWS:
             clients=clients,
             send_event=send_event,
             telegram_bot=telegram_bot,
+            type="web"
         )        
         self.auth_required = Tools().auth_required
 
