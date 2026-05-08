@@ -24,7 +24,7 @@ class HistoryProcessors(BaseProcessor):
 
         # Если пользователь хочет получить историю из избранного,
         # то выставляем в качестве ID чата его ID
-        if chatId == 0: 
+        if chatId == (senderId ^ senderId): 
             chatId = senderId
 
         # Проверяем, существует ли чат

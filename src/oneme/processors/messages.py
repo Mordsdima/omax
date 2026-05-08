@@ -89,8 +89,7 @@ class MessagesProcessors(BaseProcessor):
 
         # Если клиент хочет отправить сообщение в избранное, 
         # то выставляем в качестве ID чата ID отправителя
-        # (А ещё используем это, если клиент вообще ничего не указал)
-        if chatId == 0 or not chatId:
+        if chatId == (senderId ^ senderId):
             chatId = senderId
             participants = [senderId]
         else:
@@ -144,7 +143,7 @@ class MessagesProcessors(BaseProcessor):
                 participant,
                 {
                     "eventType": "new_msg",
-                    "chatId": 0 if chatId == senderId else chatId,
+                    "chatId": 0 if chatId == (senderId ^ senderId) else chatId,
                     "message": bodyMessage,
                     "prevMessageId": lastMessageId,
                     "time": messageTime,

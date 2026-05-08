@@ -4,6 +4,7 @@ import logging
 import signal
 import ssl
 import sys
+import traceback
 
 from common.config import ServerConfig
 from common.push import PushService
@@ -195,8 +196,13 @@ async def main():
     # Запускаем контроллеры
     try:
         await asyncio.gather(*running_tasks)
-    except (asyncio.CancelledError, Exception):
-        logging.info("Все задачи завершены, выходим")
+    except asyncio.CancelledError:
+        logging.info("Все задачи завершены")
+    except Exception as e:
+        logging.error(
+            f"Произошла неизвестная ошибка: {e}"
+        )
+        traceback.print_exc()
     finally:
         if hasattr(db, 'close'):
             db.close()
