@@ -161,6 +161,67 @@ class ContactsProcessors(BaseProcessor):
 
             await self._send(writer, packet)
 
+        elif action == "BLOCK":
+            async with self.db_pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Проверяем, существует ли контакт
+                    await cursor.execute(
+                        "SELECT * FROM contacts WHERE owner_id = %s AND contact_id = %s",
+                        (userId, contactId)
+                    )
+                    row = await cursor.fetchone()
+                    
+                    # Обновляем существующий контакт, если такой есть
+                    if row:
+                        await cursor.execute(
+                            "UPDATE contacts SET is_blocked = TRUE WHERE owner_id = %s AND contact_id = %s",
+                            (userId, contactId)
+                        )
+                    else: # В ином случае добавляем новую запись в бд
+                        await cursor.execute("SELECT * FROM users WHERE id = %s", (contactId,))
+                        user = await cursor.fetchone()
+                        if not user:
+                            await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.USER_NOT_FOUND, writer)
+                            return
+                        
+                        await cursor.execute(
+                            "INSERT INTO contacts (owner_id, contact_id, custom_firstname, custom_lastname, is_blocked) VALUES (%s, %s, %s, %s, TRUE)",
+                            (userId, contactId, firstName, lastName)
+                        )
+
+            packet = self.proto.pack_packet(
+                cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CONTACT_UPDATE, payload=None
+            )
+
+            await self._send(writer, packet)
+
+        elif action == "UNBLOCK":
+            # Разблокируем контакт
+            async with self.db_pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Проверяем, существует ли контакт
+                    await cursor.execute(
+                        "SELECT * FROM contacts WHERE owner_id = %s AND contact_id = %s",
+                        (userId, contactId)
+                    )
+                    row = await cursor.fetchone()
+                    
+                    # Обновляем контакт, если он есть
+                    if row:
+                        await cursor.execute(
+                            "UPDATE contacts SET is_blocked = FALSE WHERE owner_id = %s AND contact_id = %s",
+                            (userId, contactId)
+                        )
+                    else: # В ином случае отправляем ошибку
+                        await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.CONTACT_NOT_FOUND, writer)
+                        return
+
+            packet = self.proto.pack_packet(
+                cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CONTACT_UPDATE, payload=None
+            )
+
+            await self._send(writer, packet)
+
     async def contact_presence(self, payload, seq, writer):
         """Обработчик получения статуса контактов"""
         # Валидируем данные пакета
