@@ -13,6 +13,8 @@ class Static:
         CHAT_NOT_FOUND = "chat_not_found"
         CHAT_NOT_ACCESS = "chat_not_access"
         RATE_LIMITED = "rate_limited"
+        CONTACT_NOT_FOUND = "contact_not_found"
+        CONTACT_ALREADY_ADDED = "contact_already_added"
 
     class ChatTypes:
         DIALOG = "DIALOG"
@@ -80,7 +82,19 @@ class Static:
             "error": "error.rate_limited",
             "message": "Too many attempts. Please try again later",
             "title": "Слишком много попыток"
-        }
+        },
+        "contact_not_found": {
+            "localizedMessage": "Контакт не найден",
+            "error": "contact.not.found",
+            "message": "Contact not found",
+            "title": "Контакт не найден"
+        },
+        "contact_already_added": {
+            "localizedMessage": "Контакт уже добавлен",
+            "error": "contact.already.added",
+            "message": "Contact already added",
+            "title": "Контакт уже добавлен"
+        },
     }
 
     ### Сообщения бота
