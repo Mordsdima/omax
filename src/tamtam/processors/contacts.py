@@ -222,6 +222,58 @@ class ContactsProcessors(BaseProcessor):
 
             await self._send(writer, packet)
 
+        elif action == "UPDATE":
+            async with self.db_pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # Проверяем, существует ли контакт
+                    await cursor.execute(
+                        "SELECT * FROM contacts WHERE owner_id = %s AND contact_id = %s",
+                        (userId, contactId)
+                    )
+                    row = await cursor.fetchone()
+                    
+                    # Если контакта нет, отдаем ошибку
+                    if not row:
+                        await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.CONTACT_NOT_FOUND, writer)
+                        return
+                    
+                    # Обновляем контакт
+                    await cursor.execute(
+                        "UPDATE contacts SET custom_firstname = %s, custom_lastname = %s WHERE owner_id = %s AND contact_id = %s",
+                        (firstName, lastName, userId, contactId)
+                    )
+                    
+                    # Получаем данные пользователя
+                    await cursor.execute("SELECT * FROM users WHERE id = %s", (contactId,))
+                    user = await cursor.fetchone()
+
+            # Генерируем профиль
+            photo_id = None if not user.get("avatar_id") else int(user.get("avatar_id"))
+            avatar_url = None if not photo_id else self.config.avatar_base_url + str(photo_id)
+
+            contact = self.tools.generate_profile_tt(
+                id=user.get("id"),
+                phone=int(user.get("phone")),
+                avatarUrl=avatar_url,
+                photoId=photo_id,
+                updateTime=int(user.get("updatetime")),
+                firstName=user.get("firstname"),
+                lastName=user.get("lastname"),
+                options=json.loads(user.get("options")),
+                description=user.get("description"),
+                username=user.get("username")
+            ),
+
+            response_payload = {
+                "contact": contact
+            }
+
+            packet = self.proto.pack_packet(
+                cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CONTACT_UPDATE, payload=response_payload
+            )
+
+            await self._send(writer, packet)
+
     async def contact_presence(self, payload, seq, writer):
         """Обработчик получения статуса контактов"""
         # Валидируем данные пакета
