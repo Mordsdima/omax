@@ -148,5 +148,5 @@ class ContactPresencePayloadModel(pydantic.BaseModel):
 class ContactUpdatePayloadModel(pydantic.BaseModel):
     action: str
     contactId: int
-    firstName: str
+    firstName: str = None
     lastName: str = None

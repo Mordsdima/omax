@@ -114,7 +114,7 @@ class ContactsProcessors(BaseProcessor):
                         )
                     # а если уже существует, отправляем ошибку
                     else:
-                        await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.CONTACT_ALREADY_EXISTS, writer)
+                        await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.CONTACT_ALREADY_ADDED, writer)
                         return
 
             # Генерируем профиль
