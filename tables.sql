@@ -1,5 +1,5 @@
 CREATE TABLE `users` (
-    `id` INT NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL,
     `phone` VARCHAR(20) UNIQUE,
     `telegram_id` VARCHAR(64) UNIQUE,
     `firstname` VARCHAR(59) NOT NULL,

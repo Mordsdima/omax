@@ -397,15 +397,19 @@ class AuthProcessors(BaseProcessor):
                 now_ms = int(time.time() * 1000)
                 now_s = int(time.time())
 
+                # Генерируем ID пользователя
+                user_id = await self.tools.generate_user_id(self.db_pool)
+
                 # Создаем пользователя
                 await cursor.execute(
                     """
                     INSERT INTO users
-                        (phone, telegram_id, firstname, lastname, username,
+                        (id, phone, telegram_id, firstname, lastname, username,
                         profileoptions, options, accountstatus, updatetime, lastseen)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
+                        user_id,
                         phone,
                         None,
                         first_name,
@@ -418,8 +422,6 @@ class AuthProcessors(BaseProcessor):
                         str(now_s),
                     ),
                 )
-
-                user_id = cursor.lastrowid
 
                 # Добавляем данные аккаунта
                 await cursor.execute(

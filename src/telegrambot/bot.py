@@ -88,10 +88,14 @@ class TelegramBot:
                 username = (message.from_user.username or f"user{int(time.time() * 1000)}")[:60]
 
                 try:
+                    # Генерируем ID пользователя
+                    user_id = await self.tools.generate_user_id(self.db_pool)
+
                     # Создаем юзера
                     await cursor.execute(
                         self.sql_queries.INSERT_USER,
                         (
+                            user_id,  # id
                             new_phone,  # phone
                             tg_id,  # telegram_id
                             firstname,  # firstname

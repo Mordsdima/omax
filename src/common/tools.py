@@ -1,6 +1,6 @@
 import json
+import secrets
 import time
-import os
 
 import geoip2.database
 
@@ -563,3 +563,13 @@ class Tools:
                 return response.country.name or "Localhost Federation"
         except Exception: 
             return "Localhost Federation"
+        
+    async def generate_user_id(self, db_pool):
+        """Генерация id пользователя"""
+        async with db_pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                while True:
+                    user_id = secrets.randbelow(2_147_383_647) + 100_000
+                    await cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+                    if not await cursor.fetchone():
+                        return user_id
