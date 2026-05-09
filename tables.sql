@@ -1,7 +1,7 @@
 CREATE TABLE `users` (
     `id` INT NOT NULL,
     `phone` VARCHAR(20) UNIQUE,
-    `telegram_id` VARCHAR(64) UNIQUE,
+    `telegram_id` VARCHAR(64),
     `firstname` VARCHAR(59) NOT NULL,
     `lastname` VARCHAR(59),
     `description` VARCHAR(400),
