@@ -23,16 +23,17 @@ class HistoryProcessors(BaseProcessor):
         messages = []
 
         # Если пользователь хочет получить историю из избранного,
-        # то выставляем в качестве ID чата его ID
-        if chatId == (senderId ^ senderId): 
-            chatId = senderId
+        # то выставляем в качестве ID чата отрицательный ID отправителя
+        isFavourite = chatId == (senderId ^ senderId)
+        if isFavourite:
+            chatId = -senderId
 
         # Проверяем, существует ли чат
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cursor:
                 # Проверяем состоит ли пользователь в чате,
                 # только в случае того, если это не избранное
-                if chatId != senderId:
+                if not isFavourite:
                     await cursor.execute("SELECT * FROM chats WHERE id = %s", (chatId,))
                     chat = await cursor.fetchone()
 

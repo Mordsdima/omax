@@ -204,21 +204,22 @@ class Tools:
 
         if include_favourites:
             # Получаем последнее сообщение из избранного
+            favouriteChatId = -senderId
             message, messageTime = await self.get_last_message(
-                senderId, db_pool, protocol_type=protocol_type
+                favouriteChatId, db_pool, protocol_type=protocol_type
             )
 
-            # ID избранного
+            # ID избранного для клиента
             chatId = senderId ^ senderId
 
-            # Получаем последнюю активность участника (отправителя) в избранном
+            # Получаем последнюю активность в избранном
             participants = await self.get_participant_last_activity(
-                senderId, [senderId], db_pool
+                favouriteChatId, [senderId], db_pool
             )
 
-            # Получаем ID предыдущего сообщения для избранного (чат ID = senderId)
+            # Получаем ID предыдущего сообщения для избранного
             prevMessageId = await self.get_previous_message_id(
-                senderId, db_pool, protocol_type=protocol_type
+                favouriteChatId, db_pool, protocol_type=protocol_type
             )
 
             # Хардкодим в лист чатов избранное

@@ -135,7 +135,7 @@ class MessagesProcessors(BaseProcessor):
                 participant,
                 {
                     "eventType": "new_msg",
-                    "chatId": 0 if chatId == senderId else chatId,
+                    "chatId": chatId,
                     "message": bodyMessage,
                     "prevMessageId": lastMessageId,
                     "time": messageTime,
@@ -145,7 +145,7 @@ class MessagesProcessors(BaseProcessor):
 
         # Данные пакета
         payload = {
-            "chatId": 0 if chatId == senderId else chatId,
+            "chatId": chatId,
             "message": bodyMessage,
             "unread": 0,
             "mark": messageTime

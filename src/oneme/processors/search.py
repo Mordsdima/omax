@@ -223,12 +223,12 @@ class SearchProcessors(BaseProcessor):
                                 )
                             )
                     else:
-                        # Получаем последнее сообщение из чата
+                        # Получаем последнее сообщение из избранного
                         message, messageTime = await self.tools.get_last_message(
-                            senderId, self.db_pool, protocol_type=self.type
+                            -senderId, self.db_pool, protocol_type=self.type
                         )
 
-                        # ID избранного
+                        # ID избранного для клиента
                         chatId = senderId ^ senderId
 
                         # Добавляем чат в список
