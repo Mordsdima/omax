@@ -225,7 +225,7 @@ class Tools:
             # Хардкодим в лист чатов избранное
             chats.append(
                 self.generate_chat(
-                    chatId if protocol_type == "mobile" else str(chatId),
+                    chatId,
                     senderId,
                     "DIALOG",
                     participants,
