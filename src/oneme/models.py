@@ -145,6 +145,10 @@ class ContactListPayloadModel(pydantic.BaseModel):
 class ContactPresencePayloadModel(pydantic.BaseModel):
     contactIds: list
 
+class ContactAddByPhonePayloadModel(pydantic.BaseModel):
+    phone: str
+    firstName: str
+
 class ContactUpdatePayloadModel(pydantic.BaseModel):
     action: str
     contactId: int

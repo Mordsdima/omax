@@ -2,7 +2,7 @@ import pydantic
 import json
 import time
 from classes.baseprocessor import BaseProcessor
-from oneme.models import ContactListPayloadModel, ContactPresencePayloadModel, ContactUpdatePayloadModel
+from oneme.models import ContactAddByPhonePayloadModel, ContactListPayloadModel, ContactPresencePayloadModel, ContactUpdatePayloadModel
 
 class ContactsProcessors(BaseProcessor):
     async def contact_list(self, payload, seq, writer, userId):
@@ -112,6 +112,23 @@ class ContactsProcessors(BaseProcessor):
                             "INSERT INTO contacts (owner_id, contact_id, custom_firstname, custom_lastname, is_blocked) VALUES (%s, %s, %s, %s, FALSE)",
                             (userId, contactId, firstName, lastName)
                         )
+
+                        # Создаем диалог, если его нет
+                        chatId = userId ^ contactId
+                        await cursor.execute("SELECT * FROM chats WHERE id = %s", (chatId,))
+                        chat = await cursor.fetchone()
+
+                        if not chat:
+                            await cursor.execute(
+                                "INSERT INTO chats (id, owner, type) VALUES (%s, %s, %s)",
+                                (chatId, userId, "DIALOG")
+                            )
+
+                            for uid in [int(userId), int(contactId)]:
+                                await cursor.execute(
+                                    "INSERT INTO chat_participants (chat_id, user_id) VALUES (%s, %s)",
+                                    (chatId, uid)
+                                )
                     # а если уже существует, отправляем ошибку
                     else:
                         await self._send_error(seq, self.opcodes.CONTACT_UPDATE, self.error_types.CONTACT_ALREADY_ADDED, writer)
@@ -276,6 +293,97 @@ class ContactsProcessors(BaseProcessor):
             )
 
             await self._send(writer, packet)
+
+    async def contact_add_by_phone(self, payload, seq, writer, userId):
+        """Добавление контакта по номеру телефона"""
+        # Валидируем данные пакета
+        try:
+            ContactAddByPhonePayloadModel.model_validate(payload)
+        except pydantic.ValidationError as error:
+            self.logger.error(f"Возникли ошибки при валидации пакета: {error}")
+            await self._send_error(seq, self.opcodes.CONTACT_ADD_BY_PHONE, self.error_types.INVALID_PAYLOAD, writer)
+            return
+
+        phone = payload.get("phone")
+        firstName = payload.get("firstName")
+        lastName = payload.get("lastName")
+
+        # Ищем пользователя по номеру телефона
+        async with self.db_pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("SELECT * FROM users WHERE phone = %s", (int(phone),))
+                user = await cursor.fetchone()
+
+                if not user:
+                    await self._send_error(seq, self.opcodes.CONTACT_ADD_BY_PHONE, self.error_types.CONTACT_NOT_FOUND, writer)
+                    return
+
+                contactId = user.get("id")
+
+                # Проверяем, не добавлен ли уже контакт
+                await cursor.execute(
+                    "SELECT * FROM contacts WHERE owner_id = %s AND contact_id = %s",
+                    (userId, contactId)
+                )
+                existing_contact = await cursor.fetchone()
+
+                is_new = existing_contact is None
+
+                if is_new:
+                    # Добавляем контакт
+                    await cursor.execute(
+                        "INSERT INTO contacts (owner_id, contact_id, custom_firstname, custom_lastname) VALUES (%s, %s, %s, %s)",
+                        (userId, contactId, firstName, lastName)
+                    )
+
+                    # Создаем диалог, если его нет
+                    chatId = userId ^ contactId
+                    await cursor.execute("SELECT * FROM chats WHERE id = %s", (chatId,))
+                    chat = await cursor.fetchone()
+
+                    if not chat:
+                        await cursor.execute(
+                            "INSERT INTO chats (id, owner, type) VALUES (%s, %s, %s)",
+                            (chatId, userId, "DIALOG")
+                        )
+
+                        for uid in [int(userId), int(contactId)]:
+                            await cursor.execute(
+                                "INSERT INTO chat_participants (chat_id, user_id) VALUES (%s, %s)",
+                                (chatId, uid)
+                            )
+
+        # Генерируем профиль
+        photoId = None if not user.get("avatar_id") else int(user.get("avatar_id"))
+        avatar_url = None if not photoId else self.config.avatar_base_url + str(photoId)
+
+        contact = self.tools.generate_profile(
+            id=user.get("id"),
+            phone=int(user.get("phone")),
+            avatarUrl=avatar_url,
+            photoId=photoId,
+            updateTime=int(user.get("updatetime")),
+            firstName=user.get("firstname"),
+            lastName=user.get("lastname"),
+            options=json.loads(user.get("options")),
+            accountStatus=int(user.get("accountstatus")),
+            description=user.get("description"),
+            includeProfileOptions=False,
+            custom_firstname=firstName,
+            custom_lastname=lastName,
+            username=user.get("username"),
+        )
+
+        response_payload = {
+            "new": is_new,
+            "contact": contact
+        }
+
+        packet = self.proto.pack_packet(
+            cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CONTACT_ADD_BY_PHONE, payload=response_payload
+        )
+
+        await self._send(writer, packet)
 
     async def contact_presence(self, payload, seq, writer):
         """Обработчик получения статуса контактов"""

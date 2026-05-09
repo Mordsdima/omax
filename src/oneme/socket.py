@@ -311,6 +311,15 @@ class OnemeMobile:
                             writer,
                             userId,
                         )
+                    case self.opcodes.CONTACT_ADD_BY_PHONE:
+                        await self.auth_required(
+                            userPhone,
+                            self.processors.contact_add_by_phone,
+                            payload,
+                            seq,
+                            writer,
+                            userId,
+                        )
                     case self.opcodes.CONTACT_PRESENCE:
                         await self.auth_required(
                             userPhone,
