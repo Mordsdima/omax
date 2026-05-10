@@ -429,6 +429,44 @@ class Tools:
         # Возвращаем айдишки
         return int(message_id), int(last_message_id), message_time
 
+    async def collect_bootstrap_history(
+        self, chatIds, db_pool, senderId, protocol_type="mobile", limit=50, include_favourites=True
+    ):
+        """Собирает карту {chatId: [messages...]} для bootstrap-pre-fetch в LOGIN.
+
+        Десктопный MAX в ответе LOGIN ждёт поле `messages` как карту чат→история.
+        Если карта пустая — клиент полагает, что у него уже есть локальная
+        история и НЕ запрашивает CHAT_HISTORY (49). В итоге в окне чата
+        видно только lastMessage из chats[].
+        """
+        result = {}
+
+        async def _fetch(chat_db_id, key_for_client):
+            async with db_pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute(
+                        "SELECT * FROM `messages` WHERE chat_id = %s ORDER BY time DESC LIMIT %s",
+                        (chat_db_id, limit),
+                    )
+                    rows = await cursor.fetchall()
+
+            if not rows:
+                return
+
+            messages = [self.build_message_dict(row, protocol_type) for row in rows]
+            messages.sort(key=lambda m: m["time"])
+            result[key_for_client] = messages
+
+        for chatId in chatIds:
+            await _fetch(chatId, chatId)
+
+        if include_favourites:
+            # Избранное: в БД хранится как chat_id = -senderId,
+            # но клиенту отдаётся под id = senderId ^ senderId (= 0)
+            await _fetch(-senderId, senderId ^ senderId)
+
+        return result
+
     async def get_last_message(self, chatId, db_pool, protocol_type="mobile"):
         """Получение последнего сообщения в чате"""
         async with db_pool.acquire() as db_connection:
