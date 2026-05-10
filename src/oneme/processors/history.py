@@ -20,6 +20,7 @@ class HistoryProcessors(BaseProcessor):
         backward = payload.get("backward", 0)
         from_time = payload.get("from", 0)
         getMessages = payload.get("getMessages", True)
+        getChat = payload.get("getChat", False)
         messages = []
         backward_count = 0
         forward_count = 0
@@ -79,19 +80,21 @@ class HistoryProcessors(BaseProcessor):
         messages.sort(key=lambda x: x["time"])
 
         # Формируем ответ.
-        # Парсер a23 в MAX-клиенте ждёт ВСЕГДА все 5 полей (messages,
-        # forward, backward, pos, total). Если каких-то нет — клиент
-        # бросает соединение и история не отображается.
-        # ВАЖНО: forward/backward здесь = СКОЛЬКО СООБЩЕНИЙ ВЕРНУЛИ
-        # (а не "сколько ещё осталось"). Если 0 — клиент игнорирует
-        # массив messages и считает что "ничего нет".
+        # Реальный парсер ответа CHAT_HISTORY в MAX 26.15.x — это az2.j(),
+        # который ждёт всего 3 поля:
+        #   chat       — qs2-объект чата (опционально, если getChat=False)
+        #   messages   — массив сообщений (jr4.a → u6h.Q для каждого)
+        #   messageIds — Set<Long> списка id сообщений в этом ответе
+        # Поля forward/backward/pos/total — это парсер a23 для CHAT_MEDIA,
+        # к chat_history они не имеют отношения.
         payload = {
-            "messages": messages,
-            "forward":  forward_count,          # сколько вернули вперёд
-            "backward": backward_count,         # сколько вернули назад
-            "pos":      0,                      # позиция курсора (offset)
-            "total":    len(messages),          # всего в этой пачке
+            "messages":   messages,
+            "messageIds": [m["id"] for m in messages],
         }
+        # chat-объект включается только если клиент просил его (getChat=True).
+        # Структура qs2 огромная (десятки полей), поэтому пока пустой dict.
+        if getChat:
+            payload["chat"] = {}
 
         # Собираем пакет
         packet = self.proto.pack_packet(
