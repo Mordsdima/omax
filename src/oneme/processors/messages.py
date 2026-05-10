@@ -125,16 +125,21 @@ class MessagesProcessors(BaseProcessor):
             db_pool=self.db_pool
         )
 
-        # Готовое тело сообщения
+        # Готовое тело сообщения. Поля cid / elements / reactionInfo / link
+        # должны присутствовать ВСЕГДА (даже пустые) — десктопный MAX
+        # ожидает фиксированную msgpack-схему и обрывает соединение
+        # при отсутствии любого из них (см. регрессию из 87cfc19).
         bodyMessage = {
-            "id": messageId,
+            "id": messageId if self.type == "mobile" else str(messageId),
+            "cid": int(cid or 0),
             "time": messageTime,
             "type": "USER",
             "sender": senderId,
-            "cid": cid,
             "text": text,
-            "attaches": attaches,
-            "elements": elements
+            "attaches": attaches if isinstance(attaches, list) else [],
+            "elements": elements if isinstance(elements, list) else [],
+            "reactionInfo": {},
+            "link": {},
         }
 
         # Отправляем событие всем участникам чата

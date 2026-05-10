@@ -59,35 +59,7 @@ class HistoryProcessors(BaseProcessor):
                         result = await cursor.fetchall()
 
                         for row in result:
-                            # TODO: Сборку тела сообщения нужно вынести в отдельную функцию
-                            message = {
-                                "sender": row.get("sender"),
-                                "id": row.get("id")
-                                if self.type == "mobile"
-                                else str(row.get("id")),
-                                "time": int(row.get("time")),
-                                "text": row.get("text"),
-                                "type": row.get("type"),
-                                "attaches": json.loads(row.get("attaches"))
-                            }
-
-                            elements = json.loads(row.get("elements"))
-                            link = {}
-                            reaction_info = {}
-
-                            if elements:
-                                message["elements"] = elements
-
-                            if link:
-                                message["link"] = link
-
-                            if reaction_info:
-                                message["reactionInfo"] = reaction_info
-
-                            if self.type == "web":
-                                message["cid"] = int(row.get("cid"))
-
-                            messages.append(message)
+                            messages.append(self.tools.build_message_dict(row, self.type))
                     if forward > 0:
                         await cursor.execute(
                             "SELECT * FROM messages WHERE chat_id = %s AND time > %s ORDER BY time ASC LIMIT %s",
@@ -97,35 +69,7 @@ class HistoryProcessors(BaseProcessor):
                         result = await cursor.fetchall()
 
                         for row in result:
-                            # TODO: Сборку тела сообщения нужно вынести в отдельную функцию
-                            message = {
-                                "sender": row.get("sender"),
-                                "id": row.get("id")
-                                if self.type == "mobile"
-                                else str(row.get("id")),
-                                "time": int(row.get("time")),
-                                "text": row.get("text"),
-                                "type": row.get("type"),
-                                "attaches": json.loads(row.get("attaches"))
-                            }
-
-                            elements = json.loads(row.get("elements"))
-                            link = {}
-                            reaction_info = {}
-
-                            if elements:
-                                message["elements"] = elements
-
-                            if link:
-                                message["link"] = link
-
-                            if reaction_info:
-                                message["reactionInfo"] = reaction_info
-
-                            if self.type == "web":
-                                message["cid"] = int(row.get("cid"))
-
-                            messages.append(message)
+                            messages.append(self.tools.build_message_dict(row, self.type))
 
         # Сортируем сообщения по времени
         messages.sort(key=lambda x: x["time"])

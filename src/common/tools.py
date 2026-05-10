@@ -10,6 +10,39 @@ class Tools:
     def __init__(self):
         pass
 
+    def build_message_dict(self, row, protocol_type="mobile"):
+        """Унифицированная сборка тела сообщения для отправки клиенту.
+
+        Десктоп MAX (TCP, protocol_type='mobile') и официальный
+        api.oneme.ru ожидают, что в сообщении будут ВСЕГДА присутствовать
+        поля cid / elements / link / reactionInfo, даже если они пустые.
+        Любое отсутствие поля приводит к тому, что клиент бросает соединение
+        при разборе msgpack-схемы (классическая регрессия из коммита 87cfc19).
+        """
+        try:
+            attaches = json.loads(row.get("attaches") or "[]")
+        except (TypeError, ValueError):
+            attaches = []
+        try:
+            elements = json.loads(row.get("elements") or "[]")
+        except (TypeError, ValueError):
+            elements = []
+
+        message = {
+            "id": row.get("id") if protocol_type == "mobile" else str(row.get("id")),
+            "cid": int(row.get("cid") or 0),
+            "time": int(row.get("time")),
+            "type": row.get("type"),
+            "sender": row.get("sender"),
+            "text": row.get("text") or "",
+            "attaches": attaches if isinstance(attaches, list) else [],
+            "elements": elements if isinstance(elements, list) else [],
+            "reactionInfo": {},
+            "link": {},
+        }
+
+        return message
+
     def generate_profile(
         self,
         id=1,
@@ -412,35 +445,8 @@ class Tools:
                 if not row:
                     return None, None
 
-                message = {
-                    "sender": row.get("sender"),
-                    "id": row.get("id")
-                    if protocol_type == "mobile"
-                    else str(row.get("id")),
-                    "time": int(row.get("time")),
-                    "text": row.get("text"),
-                    "type": row.get("type"),
-                    "attaches": json.loads(row.get("attaches"))
-                }
-
-                elements = json.loads(row.get("elements"))
-                link = {}
-                reaction_info = {}
-
-                if elements:
-                    message["elements"] = elements
-
-                if link:
-                    message["link"] = link
-
-                if reaction_info:
-                    message["reactionInfo"] = reaction_info
-
-                if protocol_type == "web":
-                    message["cid"] = int(row.get("cid"))
-
                 # Возвращаем
-                return message, int(row.get("time"))
+                return self.build_message_dict(row, protocol_type), int(row.get("time"))
 
     async def get_previous_message_id(self, chatId, db_pool, protocol_type="mobile"):
         """Получение ID предыдущего сообщения (второго с конца) в чате."""
