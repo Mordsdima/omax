@@ -34,12 +34,14 @@ class Tools:
         #   id, cid, chatId, time, type, sender, text, attaches, elements,
         #   link, reactionInfo, updateTime, status, options
         # Список вытащен дизассемблированием Q() через dexdump.
+        # type — int-enum для разновидности сообщения (0 = обычное text);
+        # status — int-enum (1 = ACTIVE/доставлено, 0 часто означает REMOVED).
         message = {
             "id": row.get("id") if protocol_type == "mobile" else str(row.get("id")),
             "cid": int(row.get("cid") or 0),
             "chatId": int(row.get("chat_id") or 0),
             "time": int(row.get("time")),
-            "type": row.get("type") or "USER",     # ENUM: USER/CHANNEL/CHANNEL_ADMIN/GROUP
+            "type": row.get("type") or "USER",     # ENUM-строка: USER/CHANNEL/CHANNEL_ADMIN/GROUP
             "sender": row.get("sender"),
             "text": row.get("text") or "",
             "attaches": attaches if isinstance(attaches, list) else [],
@@ -47,7 +49,7 @@ class Tools:
             "reactionInfo": {},
             "link": {},
             "updateTime": int(row.get("update_time") or row.get("time") or 0),
-            "status": int(row.get("status") or 0),
+            "status": int(row.get("status") or 1),     # 1 = ACTIVE
             "options": int(row.get("options") or 0),
         }
 
