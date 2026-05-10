@@ -21,6 +21,8 @@ class HistoryProcessors(BaseProcessor):
         from_time = payload.get("from", 0)
         getMessages = payload.get("getMessages", True)
         messages = []
+        backward_count = 0
+        forward_count = 0
 
         # Если пользователь хочет получить историю из избранного,
         # то выставляем в качестве ID чата отрицательный ID отправителя
@@ -60,6 +62,7 @@ class HistoryProcessors(BaseProcessor):
 
                         for row in result:
                             messages.append(self.tools.build_message_dict(row, self.type))
+                        backward_count = len(result)
                     if forward > 0:
                         await cursor.execute(
                             "SELECT * FROM messages WHERE chat_id = %s AND time > %s ORDER BY time ASC LIMIT %s",
@@ -70,6 +73,7 @@ class HistoryProcessors(BaseProcessor):
 
                         for row in result:
                             messages.append(self.tools.build_message_dict(row, self.type))
+                        forward_count = len(result)
 
         # Сортируем сообщения по времени
         messages.sort(key=lambda x: x["time"])
@@ -78,12 +82,15 @@ class HistoryProcessors(BaseProcessor):
         # Парсер a23 в MAX-клиенте ждёт ВСЕГДА все 5 полей (messages,
         # forward, backward, pos, total). Если каких-то нет — клиент
         # бросает соединение и история не отображается.
+        # ВАЖНО: forward/backward здесь = СКОЛЬКО СООБЩЕНИЙ ВЕРНУЛИ
+        # (а не "сколько ещё осталось"). Если 0 — клиент игнорирует
+        # массив messages и считает что "ничего нет".
         payload = {
             "messages": messages,
-            "forward":  0,                     # сколько ещё доступно вперёд
-            "backward": 0,                     # сколько ещё доступно назад
-            "pos":      0,                     # позиция курсора
-            "total":    len(messages),         # всего в чате (примерно)
+            "forward":  forward_count,          # сколько вернули вперёд
+            "backward": backward_count,         # сколько вернули назад
+            "pos":      0,                      # позиция курсора (offset)
+            "total":    len(messages),          # всего в этой пачке
         }
 
         # Собираем пакет
