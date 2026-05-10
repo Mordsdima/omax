@@ -1,5 +1,6 @@
 import pydantic
 import json
+import time
 from classes.baseprocessor import BaseProcessor
 from oneme.models import ChatHistoryPayloadModel
 
@@ -79,6 +80,18 @@ class HistoryProcessors(BaseProcessor):
         # Сортируем сообщения по времени
         messages.sort(key=lambda x: x["time"])
 
+        # КОСТЫЛЬ: клиент MAX в fz2.b() фильтрует сообщения по условию
+        # `message.time >= chat.createTime`. Если у пользователя чат был
+        # создан недавно, а наши сообщения в БД старые — все они отбрасываются
+        # (см. реверс defpackage.fz2.java:89). Сдвигаем time всех сообщений
+        # на «сейчас минус 1 секунда * (N-i)», чтобы все были после createTime.
+        if messages:
+            now_ms = int(time.time() * 1000)
+            n = len(messages)
+            for i, m in enumerate(messages):
+                m["time"] = now_ms - (n - 1 - i) * 1000   # самое новое = сейчас
+                m["updateTime"] = m["time"]
+
         # Формируем ответ.
         # Реальный парсер ответа CHAT_HISTORY в MAX 26.15.x — это az2.j(),
         # который ждёт всего 3 поля:
@@ -88,13 +101,10 @@ class HistoryProcessors(BaseProcessor):
         # Поля forward/backward/pos/total — это парсер a23 для CHAT_MEDIA,
         # к chat_history они не имеют отношения.
         payload = {
+            "chat":       {},                            # qs2-объект чата (пустой)
             "messages":   messages,
             "messageIds": [m["id"] for m in messages],
         }
-        # chat-объект включается только если клиент просил его (getChat=True).
-        # Структура qs2 огромная (десятки полей), поэтому пока пустой dict.
-        if getChat:
-            payload["chat"] = {}
 
         # Собираем пакет
         packet = self.proto.pack_packet(
