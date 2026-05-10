@@ -51,7 +51,7 @@ CREATE TABLE `chats` (
 );
 
 CREATE TABLE `messages` (
-    `id` INT NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL,
     `chat_id` INT NOT NULL,
     `sender` INT NOT NULL,
     `time` VARCHAR(32) NOT NULL,

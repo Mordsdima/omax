@@ -1,4 +1,5 @@
 import json
+import random
 import secrets
 import time
 
@@ -45,6 +46,8 @@ class Tools:
             ],
             "options": options,
             "accountStatus": accountStatus,
+            "location": "RU",
+            "registrationTime": int(time.time() * 1000)
         }
 
         if avatarUrl:
@@ -371,10 +374,14 @@ class Tools:
                 last_message_id = row.get("id") or 0  # последнее id сообщения в чате
                 message_time = int(time.time() * 1000)  # время отправки сообщения
 
+                # Генерируем ID сообщения
+                message_id = int(time.time() * 1000000) * 1000 + random.randint(100, 999)
+
                 # Вносим новое сообщение в таблицу
                 await cursor.execute(
-                    "INSERT INTO `messages` (chat_id, sender, time, text, attaches, cid, elements, type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO `messages` (id, chat_id, sender, time, text, attaches, cid, elements, type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (
+                        message_id,
                         chatId,
                         senderId,
                         message_time,
@@ -385,8 +392,6 @@ class Tools:
                         type,
                     ),
                 )
-
-                message_id = cursor.lastrowid
 
         # Возвращаем айдишки
         return int(message_id), int(last_message_id), message_time
@@ -407,21 +412,32 @@ class Tools:
                 if not row:
                     return None, None
 
-                # Собираем сообщение
                 message = {
+                    "sender": row.get("sender"),
                     "id": row.get("id")
                     if protocol_type == "mobile"
                     else str(row.get("id")),
                     "time": int(row.get("time")),
-                    "type": row.get("type"),
-                    "sender": row.get("sender"),
-                    "cid": int(row.get("cid")),
                     "text": row.get("text"),
-                    "attaches": json.loads(row.get("attaches")),
-                    "elements": json.loads(row.get("elements")),
-                    "reactionInfo": {},
-                    "link": {}
+                    "type": row.get("type"),
+                    "attaches": json.loads(row.get("attaches"))
                 }
+
+                elements = json.loads(row.get("elements"))
+                link = {}
+                reaction_info = {}
+
+                if elements:
+                    message["elements"] = elements
+
+                if link:
+                    message["link"] = link
+
+                if reaction_info:
+                    message["reactionInfo"] = reaction_info
+
+                if protocol_type == "web":
+                    message["cid"] = int(row.get("cid"))
 
                 # Возвращаем
                 return message, int(row.get("time"))
