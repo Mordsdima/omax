@@ -93,9 +93,14 @@ class HistoryProcessors(BaseProcessor):
             "total":    len(messages),          # всего в этой пачке
         }
 
-        # Собираем пакет
+        # Собираем пакет.
+        # MAX 26.15.x: в switch-парсере cwb.c() (диспатч по полю u4d.d=short opcode)
+        # обработчик CHAT_HISTORY (создание a23) висит на #int 51, а не 49.
+        # opcode 49 в этом switch вообще отсутствует — пакет с ним игнорируется.
+        # Поэтому отвечаем opcode=51 несмотря на то, что в нашем opcodes.py
+        # CHAT_HISTORY=49 (это для роутинга запросов, а не для ответов).
         packet = self.proto.pack_packet(
-            cmd=self.proto.CMD_OK, seq=seq, opcode=self.opcodes.CHAT_HISTORY, payload=payload
+            cmd=self.proto.CMD_OK, seq=seq, opcode=51, payload=payload
         )
 
         # Отправялем

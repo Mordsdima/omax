@@ -223,7 +223,9 @@ class OnemeMobile:
                             writer,
                             userId,
                         )
-                    case self.opcodes.CHAT_HISTORY:
+                    case 49 | 51:
+                        # MAX 26.15.x шлёт CHAT_HISTORY на opcode 51 (раньше был CHAT_MEDIA),
+                        # некоторые билды ещё шлют 49. Поддерживаем оба.
                         await self.auth_required(
                             userPhone,
                             self.processors.chat_history,
