@@ -74,9 +74,16 @@ class HistoryProcessors(BaseProcessor):
         # Сортируем сообщения по времени
         messages.sort(key=lambda x: x["time"])
 
-        # Формируем ответ
+        # Формируем ответ.
+        # Парсер a23 в MAX-клиенте ждёт ВСЕГДА все 5 полей (messages,
+        # forward, backward, pos, total). Если каких-то нет — клиент
+        # бросает соединение и история не отображается.
         payload = {
-            "messages": messages
+            "messages": messages,
+            "forward":  0,                     # сколько ещё доступно вперёд
+            "backward": 0,                     # сколько ещё доступно назад
+            "pos":      0,                     # позиция курсора
+            "total":    len(messages),         # всего в чате (примерно)
         }
 
         # Собираем пакет

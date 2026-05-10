@@ -28,17 +28,27 @@ class Tools:
         except (TypeError, ValueError):
             elements = []
 
+        # Парсер MAX 26.15.3 (defpackage.u6h.Q) ждёт в сообщении следующие
+        # поля. Отсутствие любого ломает разбор msgpack-схемы, и клиент
+        # тихо роняет всю историю чата:
+        #   id, cid, chatId, time, type, sender, text, attaches, elements,
+        #   link, reactionInfo, updateTime, status, options
+        # Список вытащен дизассемблированием Q() через dexdump.
         message = {
             "id": row.get("id") if protocol_type == "mobile" else str(row.get("id")),
             "cid": int(row.get("cid") or 0),
+            "chatId": int(row.get("chat_id") or 0),
             "time": int(row.get("time")),
-            "type": row.get("type"),
+            "type": row.get("type") or "USER",     # ENUM: USER/CHANNEL/CHANNEL_ADMIN/GROUP
             "sender": row.get("sender"),
             "text": row.get("text") or "",
             "attaches": attaches if isinstance(attaches, list) else [],
             "elements": elements if isinstance(elements, list) else [],
             "reactionInfo": {},
             "link": {},
+            "updateTime": int(row.get("update_time") or row.get("time") or 0),
+            "status": int(row.get("status") or 0),
+            "options": int(row.get("options") or 0),
         }
 
         return message

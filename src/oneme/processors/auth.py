@@ -603,22 +603,9 @@ class AuthProcessors(BaseProcessor):
             username=user.get("username"),
         )
 
-        # Список ID чатов до того как generate_chats затрёт переменную
-        chat_ids_for_history = list(chats)
-
         # Генерируем список чатов
         chats = await self.tools.generate_chats(
             chats, self.db_pool, user.get("id"), protocol_type=self.type
-        )
-
-        # Bootstrap-история: карта {chatId: [messages]}.
-        # Без неё десктопный MAX считает, что локальная история уже
-        # синхронизирована, и не запрашивает CHAT_HISTORY (49).
-        bootstrap_messages = await self.tools.collect_bootstrap_history(
-            chat_ids_for_history,
-            self.db_pool,
-            user.get("id"),
-            protocol_type=self.type,
         )
 
         # Генерируем список контактов
@@ -634,8 +621,8 @@ class AuthProcessors(BaseProcessor):
         payload = {
             "profile": profile,
             "chats": chats,
-            "chatMarker": int(time.time() * 1000),
-            "messages": bootstrap_messages,
+            "chatMarker": 0,
+            "messages": {},
             "contacts": contacts,
             "presence": presence,
             "config": {
