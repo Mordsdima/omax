@@ -84,12 +84,12 @@ class HistoryProcessors(BaseProcessor):
         # `message.time >= chat.createTime`. Если у пользователя чат был
         # создан недавно, а наши сообщения в БД старые — все они отбрасываются
         # (см. реверс defpackage.fz2.java:89). Сдвигаем time всех сообщений
-        # на «сейчас минус 1 секунда * (N-i)», чтобы все были после createTime.
+        # в «сейчас + N мс» — гарантированно > chat.createTime, и шаг по 1мс
+        # сохраняет порядок сортировки.
         if messages:
             now_ms = int(time.time() * 1000)
-            n = len(messages)
             for i, m in enumerate(messages):
-                m["time"] = now_ms - (n - 1 - i) * 1000   # самое новое = сейчас
+                m["time"] = now_ms + i           # на 1мс позже предыдущего
                 m["updateTime"] = m["time"]
 
         # Формируем ответ.
@@ -101,10 +101,13 @@ class HistoryProcessors(BaseProcessor):
         # Поля forward/backward/pos/total — это парсер a23 для CHAT_MEDIA,
         # к chat_history они не имеют отношения.
         payload = {
-            "chat":       {},                            # qs2-объект чата (пустой)
             "messages":   messages,
             "messageIds": [m["id"] for m in messages],
         }
+        # chat-объект отдаём только если запрошен (getChat=True). Пустой
+        # qs2-dict рискует свалить парсер qs2.e() — лучше вообще не слать.
+        if getChat:
+            payload["chat"] = {}
 
         # Собираем пакет
         packet = self.proto.pack_packet(
