@@ -118,12 +118,29 @@ class Tools:
         options=[],
         description=None,
         username=None,
+        custom_firstname=None,
+        custom_lastname=None
     ):
+        # Так как TT не поддерживает фамилию, и если нам ее не передали в функцию
+        # то используем только имя, чтобы избежать None в фамилии
+        if firstName and lastName:
+            name = f"{firstName} {lastName}",
+        else:
+            name = firstName
+
+        # Используем такой же костыль, как и выше
+        if custom_firstname:
+            custom_name = custom_firstname
+        elif custom_firstname and custom_lastname:
+            custom_name = f"{custom_firstname} {custom_lastname}"
+        else:
+            custom_name = None
+
         contact = {
             "id": id,
             "updateTime": updateTime,
             "phone": phone,
-            "names": [{"name": f"{firstName} {lastName}", "type": "TT"}],
+            "names": [{"name": name, "type": "TT"}],
             "options": options,
         }
 
@@ -135,8 +152,16 @@ class Tools:
         if description:
             contact["description"] = description
 
+        # NOTE: официальный сервер вроде как отдавал tt.me, но клиент примет любую ссылку
+        # можно потом как нибудь сделать возможность редактирования этого момента, но это 
+        # позже, так как по юзернейму искать пока нельзя
         if username:
-            contact["link"] = "https://tamtam.chat/" + username
+            contact["link"] = "https://tt.me/" + username
+
+        if custom_firstname:
+            contact["names"].append(
+                {"name": custom_name, "type": "CUSTOM"}
+            )
 
         return contact
 

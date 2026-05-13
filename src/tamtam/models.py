@@ -76,7 +76,7 @@ class ContactPresencePayloadModel(pydantic.BaseModel):
 class ContactUpdatePayloadModel(pydantic.BaseModel):
     action: str
     contactId: int
-    firstName: str
+    firstName: str = None
     lastName: str = None
 
 class TypingPayloadModel(pydantic.BaseModel):
@@ -95,3 +95,19 @@ class SendMessagePayloadModel(pydantic.BaseModel):
     userId: int = None
     chatId: int = None
     message: MessageModel
+
+class AuthConfirmRegisterPayloadModel(pydantic.BaseModel):
+    token: str
+    name: str
+    tokenType: str
+    deviceType: str
+    deviceId: str = None
+
+    @pydantic.field_validator('name')
+    def validate_name(cls, v):
+        v = v.strip()
+        if not v:
+            raise ValueError('name must not be empty')
+        if len(v) > 59:
+            raise ValueError('name too long')
+        return v
