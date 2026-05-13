@@ -54,6 +54,32 @@ class AssetsPayloadModel(pydantic.BaseModel):
     sync: int
     type: str
 
+class AssetsGetPayloadModel(pydantic.BaseModel):
+    type: str
+    count: int = 100
+    query: str = None
+
+class AssetsGetByIdsPayloadModel(pydantic.BaseModel):
+    type: str
+    ids: list
+
+class AssetsAddPayloadModel(pydantic.BaseModel):
+    type: str
+    id: int = None
+
+class AssetsRemovePayloadModel(pydantic.BaseModel):
+    type: str
+    ids: list
+
+class AssetsMovePayloadModel(pydantic.BaseModel):
+    type: str
+    id: int
+    position: int
+
+class AssetsListModifyPayloadModel(pydantic.BaseModel):
+    type: str
+    ids: list
+
 class GetCallHistoryPayloadModel(pydantic.BaseModel):
     forward: bool
     count: int

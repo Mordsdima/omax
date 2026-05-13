@@ -122,6 +122,30 @@ class TamTamMobile:
                         await self.auth_required(
                             userPhone, self.processors.assets_update, payload, seq, writer
                         )
+                    case self.opcodes.ASSETS_GET:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_get, payload, seq, writer
+                        )
+                    case self.opcodes.ASSETS_GET_BY_IDS:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_get_by_ids, payload, seq, writer
+                        )
+                    case self.opcodes.ASSETS_ADD:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_add, payload, seq, writer
+                        )
+                    case self.opcodes.ASSETS_REMOVE:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_remove, payload, seq, writer
+                        )
+                    case self.opcodes.ASSETS_MOVE:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_move, payload, seq, writer
+                        )
+                    case self.opcodes.ASSETS_LIST_MODIFY:
+                        await self.auth_required(
+                            userPhone, self.processors.assets_list_modify, payload, seq, writer
+                        )
                     case self.opcodes.VIDEO_CHAT_HISTORY:
                         await self.auth_required(
                             userPhone, self.processors.video_chat_history, payload, seq, writer
