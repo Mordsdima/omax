@@ -23,8 +23,6 @@ class HistoryProcessors(BaseProcessor):
         getMessages = payload.get("getMessages", True)
         getChat = payload.get("getChat", False)
         messages = []
-        backward_count = 0
-        forward_count = 0
 
         # Если пользователь хочет получить историю из избранного,
         # то выставляем в качестве ID чата отрицательный ID отправителя
@@ -80,32 +78,10 @@ class HistoryProcessors(BaseProcessor):
         # Сортируем сообщения по времени
         messages.sort(key=lambda x: x["time"])
 
-        # КОСТЫЛЬ: клиент MAX в fz2.b() фильтрует сообщения по условию
-        # `message.time >= chat.createTime`. Если у пользователя чат был
-        # создан недавно, а наши сообщения в БД старые — все они отбрасываются
-        # (см. реверс defpackage.fz2.java:89). Сдвигаем time всех сообщений
-        # в «сейчас + N мс» — гарантированно > chat.createTime, и шаг по 1мс
-        # сохраняет порядок сортировки.
-        if messages:
-            now_ms = int(time.time() * 1000)
-            for i, m in enumerate(messages):
-                m["time"] = now_ms + i           # на 1мс позже предыдущего
-                m["updateTime"] = m["time"]
-
-        # Формируем ответ.
-        # Реальный парсер ответа CHAT_HISTORY в MAX 26.15.x — это az2.j(),
-        # который ждёт всего 3 поля:
-        #   chat       — qs2-объект чата (опционально, если getChat=False)
-        #   messages   — массив сообщений (jr4.a → u6h.Q для каждого)
-        #   messageIds — Set<Long> списка id сообщений в этом ответе
-        # Поля forward/backward/pos/total — это парсер a23 для CHAT_MEDIA,
-        # к chat_history они не имеют отношения.
         payload = {
-            "messages":   messages,
-            "messageIds": [m["id"] for m in messages],
+            "messages": messages
         }
-        # chat-объект отдаём только если запрошен (getChat=True). Пустой
-        # qs2-dict рискует свалить парсер qs2.e() — лучше вообще не слать.
+
         if getChat:
             payload["chat"] = {}
 

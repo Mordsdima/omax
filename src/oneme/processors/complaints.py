@@ -3,7 +3,7 @@ import time
 from classes.baseprocessor import BaseProcessor
 from oneme.models import ComplainReasonsGetPayloadModel
 
-class ComplainsProcessors(BaseProcessor):
+class ComplaintsProcessors(BaseProcessor):
     async def complain_reasons_get(self, payload, seq, writer):
         """Обработчик получения причин жалоб"""
         # Валидируем данные пакета

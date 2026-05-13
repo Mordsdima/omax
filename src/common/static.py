@@ -15,6 +15,7 @@ class Static:
         RATE_LIMITED = "rate_limited"
         CONTACT_NOT_FOUND = "contact_not_found"
         CONTACT_ALREADY_ADDED = "contact_already_added"
+        CONTACT_BLOCKED = "contact_blocked"
 
     class ChatTypes:
         DIALOG = "DIALOG"
@@ -94,6 +95,12 @@ class Static:
             "error": "contact.already.added",
             "message": "Contact already added",
             "title": "Контакт уже добавлен"
+        },
+        "contact_blocked": {
+            "localizedMessage": "Вы не можете написать этому пользователю",
+            "error": "contact.blocked",
+            "message": "Contact is blocked",
+            "title": "Вы не можете написать этому пользователю"
         },
     }
 

@@ -113,6 +113,14 @@ class MessagesProcessors(BaseProcessor):
                         await self._send_error(seq, self.opcodes.MSG_SEND, self.error_types.CHAT_NOT_ACCESS, writer)
                         return
 
+                    # Проверяем блокировку собеседника
+                    if chat.get("type") == "DIALOG":
+                        contactid = [p for p in participants if p != int(senderId)][0]
+                        # Проверяем, заблокировал ли отправитель собеседника
+                        if await self.tools.contact_is_blocked(contactid, senderId, db_pool):
+                            await self._send_error(seq, self.opcodes.MSG_SEND, self.error_types.CONTACT_BLOCKED, writer)
+                            return
+
         # Добавляем сообщение в историю
         messageId, lastMessageId, messageTime = await self.tools.insert_message(
             chatId=chatId,

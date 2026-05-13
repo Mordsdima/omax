@@ -2,7 +2,7 @@ from .assets import AssetsProcessors
 from .auth import AuthProcessors
 from .calls import CallsProcessors
 from .chats import ChatsProcessors
-from .complains import ComplainsProcessors
+from .complaints import ComplaintsProcessors
 from .contacts import ContactsProcessors
 from .folders import FoldersProcessors
 from .history import HistoryProcessors
@@ -16,7 +16,7 @@ class Processors(
     AuthProcessors,
     CallsProcessors,
     ChatsProcessors,
-    ComplainsProcessors,
+    ComplaintsProcessors,
     ContactsProcessors,
     FoldersProcessors,
     HistoryProcessors,

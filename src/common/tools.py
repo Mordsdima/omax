@@ -11,14 +11,7 @@ class Tools:
         pass
 
     def build_message_dict(self, row, protocol_type="mobile"):
-        """Унифицированная сборка тела сообщения для отправки клиенту.
-
-        Десктоп MAX (TCP, protocol_type='mobile') и официальный
-        api.oneme.ru ожидают, что в сообщении будут ВСЕГДА присутствовать
-        поля cid / elements / link / reactionInfo, даже если они пустые.
-        Любое отсутствие поля приводит к тому, что клиент бросает соединение
-        при разборе msgpack-схемы (классическая регрессия из коммита 87cfc19).
-        """
+        """Сборка тела сообщения"""
         try:
             attaches = json.loads(row.get("attaches") or "[]")
         except (TypeError, ValueError):
@@ -28,29 +21,18 @@ class Tools:
         except (TypeError, ValueError):
             elements = []
 
-        # Парсер MAX 26.15.3 (defpackage.u6h.Q) ждёт в сообщении следующие
-        # поля. Отсутствие любого ломает разбор msgpack-схемы, и клиент
-        # тихо роняет всю историю чата:
-        #   id, cid, chatId, time, type, sender, text, attaches, elements,
-        #   link, reactionInfo, updateTime, status, options
-        # Список вытащен дизассемблированием Q() через dexdump.
-        # type — int-enum для разновидности сообщения (0 = обычное text);
-        # status — int-enum (1 = ACTIVE/доставлено, 0 часто означает REMOVED).
         message = {
             "id": row.get("id") if protocol_type == "mobile" else str(row.get("id")),
             "cid": int(row.get("cid") or 0),
             "chatId": int(row.get("chat_id") or 0),
             "time": int(row.get("time")),
-            "type": row.get("type") or "USER",     # ENUM-строка: USER/CHANNEL/CHANNEL_ADMIN/GROUP
+            "type": row.get("type") or "USER",
             "sender": row.get("sender"),
             "text": row.get("text") or "",
-            "attaches": attaches if isinstance(attaches, list) else [],
-            "elements": elements if isinstance(elements, list) else [],
+            "attaches": attaches,
+            "elements": elements,
             "reactionInfo": {},
-            "link": {},
-            "updateTime": int(row.get("update_time") or row.get("time") or 0),
-            "status": int(row.get("status") or 1),     # 1 = ACTIVE
-            "options": int(row.get("options") or 0),
+            "link": {}
         }
 
         return message
@@ -441,44 +423,6 @@ class Tools:
         # Возвращаем айдишки
         return int(message_id), int(last_message_id), message_time
 
-    async def collect_bootstrap_history(
-        self, chatIds, db_pool, senderId, protocol_type="mobile", limit=50, include_favourites=True
-    ):
-        """Собирает карту {chatId: [messages...]} для bootstrap-pre-fetch в LOGIN.
-
-        Десктопный MAX в ответе LOGIN ждёт поле `messages` как карту чат→история.
-        Если карта пустая — клиент полагает, что у него уже есть локальная
-        история и НЕ запрашивает CHAT_HISTORY (49). В итоге в окне чата
-        видно только lastMessage из chats[].
-        """
-        result = {}
-
-        async def _fetch(chat_db_id, key_for_client):
-            async with db_pool.acquire() as conn:
-                async with conn.cursor() as cursor:
-                    await cursor.execute(
-                        "SELECT * FROM `messages` WHERE chat_id = %s ORDER BY time DESC LIMIT %s",
-                        (chat_db_id, limit),
-                    )
-                    rows = await cursor.fetchall()
-
-            if not rows:
-                return
-
-            messages = [self.build_message_dict(row, protocol_type) for row in rows]
-            messages.sort(key=lambda m: m["time"])
-            result[key_for_client] = messages
-
-        for chatId in chatIds:
-            await _fetch(chatId, chatId)
-
-        if include_favourites:
-            # Избранное: в БД хранится как chat_id = -senderId,
-            # но клиенту отдаётся под id = senderId ^ senderId (= 0)
-            await _fetch(-senderId, senderId ^ senderId)
-
-        return result
-
     async def get_last_message(self, chatId, db_pool, protocol_type="mobile"):
         """Получение последнего сообщения в чате"""
         async with db_pool.acquire() as db_connection:
@@ -645,3 +589,23 @@ class Tools:
                     await cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
                     if not await cursor.fetchone():
                         return user_id
+
+    async def contact_is_blocked(self, owner_id, contact_id, db_pool):
+        """
+            По изначальной задумке, данная функция должна проверять, заблокирован ли контакт
+            На сервере долгое время не был доделан черный список, хотя управление им было реализовано
+            (на деле, это я поленился)
+
+            Вернёт вам true, если контакт заблокирован, иначе false
+        """
+        # Проверяем наличие контакта
+        async with db_pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("SELECT * FROM contacts WHERE owner_id = %s AND contact_id = %s AND is_blocked = %s", (owner_id, contact_id, True))
+                row = await cursor.fetchone()
+
+                # Есди контакт существует и заблокирован, возвращаем true,
+                if row:
+                    return True
+                else: # в ином случае false
+                    return False
