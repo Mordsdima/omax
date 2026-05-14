@@ -39,17 +39,17 @@ class Tools:
 
     def generate_profile(
         self,
-        id=1,
-        phone=70000000000,
+        id=None,
+        phone=None,
         avatarUrl=None,
         photoId=None,
-        updateTime=0,
-        firstName="Test",
-        lastName="Account",
-        options=[],
+        updateTime=None,
+        firstName=None,
+        lastName=None,
+        options=None,
         description=None,
-        accountStatus=0,
-        profileOptions=[],
+        accountStatus=None,
+        profileOptions=None,
         includeProfileOptions=True,
         username=None,
 
@@ -108,31 +108,32 @@ class Tools:
 
     def generate_profile_tt(
         self,
-        id=1,
-        phone=70000000000,
+        id=None,
+        phone=None,
         avatarUrl=None,
         photoId=None,
-        updateTime=0,
-        firstName="Test",
-        lastName="Account",
-        options=[],
+        updateTime=None,
+        firstName=None,
+        lastName=None,
+        options=None,
         description=None,
         username=None,
         custom_firstname=None,
-        custom_lastname=None
+        custom_lastname=None,
+        blocked=None
     ):
         # Так как TT не поддерживает фамилию, и если нам ее не передали в функцию
         # то используем только имя, чтобы избежать None в фамилии
         if firstName and lastName:
-            name = f"{firstName} {lastName}",
+            name = f"{firstName} {lastName}"
         else:
             name = firstName
 
         # Используем такой же костыль, как и выше
-        if custom_firstname:
-            custom_name = custom_firstname
-        elif custom_firstname and custom_lastname:
+        if custom_firstname and custom_lastname:
             custom_name = f"{custom_firstname} {custom_lastname}"
+        elif custom_firstname:
+            custom_name = custom_firstname
         else:
             custom_name = None
 
@@ -162,6 +163,9 @@ class Tools:
             contact["names"].append(
                 {"name": custom_name, "type": "CUSTOM"}
             )
+
+        if blocked:
+            contact["status"] = "BLOCKED"
 
         return contact
 

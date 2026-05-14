@@ -297,7 +297,7 @@ class AuthProcessors(BaseProcessor):
         photoId = (
             None if not account.get("avatar_id") else int(account.get("avatar_id"))
         )
-        avatar_url = None if not photoId else self.config.avatar_base_url + photoId
+        avatar_url = None if not photoId else self.config.avatar_base_url + str(photoId)
         description = (
             None if not account.get("description") else account.get("description")
         )
@@ -521,7 +521,7 @@ class AuthProcessors(BaseProcessor):
             await self._send_error(
                 seq, self.opcodes.LOGIN, self.error_types.INVALID_PAYLOAD, writer
             )
-            return
+            return None, None, None
 
         # Чаты, где состоит пользователь
         chats = []
@@ -545,7 +545,7 @@ class AuthProcessors(BaseProcessor):
                     await self._send_error(
                         seq, self.opcodes.LOGIN, self.error_types.INVALID_TOKEN, writer
                     )
-                    return
+                    return None, None, None
 
                 # Ищем аккаунт пользователя в бд
                 await cursor.execute(
@@ -563,7 +563,7 @@ class AuthProcessors(BaseProcessor):
                 # Ищем все чаты, где состоит пользователь
                 await cursor.execute(
                     "SELECT * FROM chat_participants WHERE user_id = %s",
-                    (user.get("id")),
+                    (user.get("id"),),
                 )
                 user_chats = await cursor.fetchall()
 
@@ -578,7 +578,7 @@ class AuthProcessors(BaseProcessor):
 
         # Аватарка с биографией
         photoId = None if not user.get("avatar_id") else int(user.get("avatar_id"))
-        avatar_url = None if not photoId else self.config.avatar_base_url + photoId
+        avatar_url = None if not photoId else self.config.avatar_base_url + str(photoId)
         description = None if not user.get("description") else user.get("description")
 
         if self._check_legacy_version(appVersion):

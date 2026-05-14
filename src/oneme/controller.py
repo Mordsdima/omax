@@ -22,6 +22,7 @@ class OnemeController(ControllerBase):
 
         # Выбираем протокол в зависимости от типа подключения
         proto = self.proto_web if is_web else self.proto_tcp
+        packet = None
 
         # Не отправляем событие самому себе
         if writer == eventData.get("writer"):
@@ -94,7 +95,9 @@ class OnemeController(ControllerBase):
                 cmd=0, seq=1, opcode=self.opcodes.NOTIF_PRESENCE, payload=payload
             )
 
-        # Отправляем пакет
+        if not packet:
+            return
+
         if is_web:
             await writer.send(packet)
         else:

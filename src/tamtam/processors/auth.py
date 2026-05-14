@@ -443,7 +443,7 @@ class AuthProcessors(BaseProcessor):
             self.logger.error(f"Возникли ошибки при валидации пакета: {e}")
             await self._send_error(seq, self.opcodes.LOGIN,
                                    self.error_types.INVALID_PAYLOAD, writer)
-            return
+            return None, None, None
 
         # Чаты, где состоит пользователь
         chats = []
@@ -464,7 +464,7 @@ class AuthProcessors(BaseProcessor):
                 if token_data is None:
                     await self._send_error(seq, self.opcodes.LOGIN,
                                            self.error_types.INVALID_TOKEN, writer)
-                    return
+                    return None, None, None
 
                 # Ищем аккаунт пользователя в бд
                 await cursor.execute("SELECT * FROM users WHERE phone = %s", (token_data.get("phone"),))
@@ -476,8 +476,8 @@ class AuthProcessors(BaseProcessor):
 
                 # Ищем все чаты, где состоит пользователь
                 await cursor.execute(
-                    "SELECT * FROM chat_participants WHERE user_id = %s", 
-                    (user.get('id'))
+                    "SELECT * FROM chat_participants WHERE user_id = %s",
+                    (user.get('id'),)
                 )
                 user_chats = await cursor.fetchall()
 

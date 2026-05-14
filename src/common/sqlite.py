@@ -49,6 +49,9 @@ class SQLiteConnectionCompat:
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
+    async def commit(self):
+        await self.connection.commit()
+
     def cursor(self):
         return SQLiteCursorCompat(self.connection)
 

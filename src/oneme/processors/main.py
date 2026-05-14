@@ -153,7 +153,7 @@ class MainProcessors(BaseProcessor):
 
                 # Аватарка с биографией
                 photoId = None if not user.get("avatar_id") else int(user.get("avatar_id"))
-                avatar_url = None if not photoId else self.config.avatar_base_url + photoId
+                avatar_url = None if not photoId else self.config.avatar_base_url + str(photoId)
                 description = None if not user.get("description") else user.get("description")
 
                 # Генерируем профиль
